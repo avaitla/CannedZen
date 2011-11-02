@@ -1,8 +1,8 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command, curry
 
 
-class Memcached(BaseEngine, RegisteredEngine):
+class Memcached(BaseEngine):
     categories = ["cache", "caching"]
     version = "memcached-1.4.8_rc1"
     source_url = "http://memcached.googlecode.com/files/"

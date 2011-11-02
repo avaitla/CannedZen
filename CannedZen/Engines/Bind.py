@@ -1,7 +1,7 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 
-class Bind(BaseEngine, RegisteredEngine):
+class Bind(BaseEngine):
     categories = ["dns"]
     version = "9.8.0-P4"
     source_url = "ftp://ftp.isc.org/isc/bind/"

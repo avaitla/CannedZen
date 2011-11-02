@@ -1,7 +1,7 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 
-class LibEvent(BaseEngine, RegisteredEngine):
+class LibEvent(BaseEngine):
     categories = ["event", "notification"]
     version = "libevent-2.0.14-stable"
     source_url = "https://github.com/downloads/libevent/libevent/"

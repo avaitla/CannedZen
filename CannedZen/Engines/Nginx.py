@@ -1,7 +1,7 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 
-class Nginx(BaseEngine, RegisteredEngine):
+class Nginx(BaseEngine):
     categories = ["cache", "caching", "server", "proxy", "static"]
     version = "nginx-1.1.4"
     source_url = "http://nginx.org/download/"

@@ -1,7 +1,7 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 
-class HAProxy(BaseEngine, RegisteredEngine):
+class HAProxy(BaseEngine):
     categories = ["server", "load balancing"]
     version = "haproxy-1.4.18"
     source_url = "http://haproxy.1wt.eu/download/1.4/src/"

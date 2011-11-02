@@ -1,8 +1,8 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 from os.path import isdir, join
 
-class SVN(BaseEngine, RegisteredEngine):
+class SVN(BaseEngine):
     categories = ["server", "version-control"]
     version = "mod_wsgi-2.5"
     source_url = "http://modwsgi.googlecode.com/files/"

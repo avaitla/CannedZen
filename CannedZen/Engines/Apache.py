@@ -1,8 +1,8 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Registration import registerCommand
 from CannedZen.Utils.Base_Utilities import command
 
-class Apache(BaseEngine, RegisteredEngine):
+class Apache(BaseEngine):
     categories = ["server"]
     version = "httpd-2.2.19"
     description = "Installs the Apache Server."

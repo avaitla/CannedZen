@@ -1,4 +1,4 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 import PyModule
 from CannedZen.Registration import registerCommand
 
@@ -6,7 +6,7 @@ from CannedZen.Utils.Base_Utilities import command
 from os.path import join
 import os
 
-class Django(BaseEngine, RegisteredEngine):
+class Django(BaseEngine):
     categories = ["python", "module", "virtualenv"]
     description = "Installs the Django web framework."
     __depends__  = {"PyModule" : {"module_name" : "django", "app_path" : None, "VirtualEnv" : None}}

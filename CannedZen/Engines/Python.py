@@ -1,7 +1,7 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 
-class Python(BaseEngine, RegisteredEngine):
+class Python(BaseEngine):
     categories = ["python"]
     version = "2.7.2"
     source_url = "http://www.python.org/download/releases/"

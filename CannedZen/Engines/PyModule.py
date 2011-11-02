@@ -1,8 +1,8 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 from os.path import join
 
-class PyModule(BaseEngine, RegisteredEngine):
+class PyModule(BaseEngine):
     categories = ["python", "module", "virtualenv"]
     __depends__ = {"VirtualEnv" : {}, "Python": {}}
     

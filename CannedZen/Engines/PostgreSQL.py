@@ -1,8 +1,8 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 from os.path import join
 
-class PostgreSQL(BaseEngine, RegisteredEngine):
+class PostgreSQL(BaseEngine):
     categories = ["database"]
     version = "postgresql-9.1.1"
     source_url = "http://wwwmaster.postgresql.org/redir/198/h/source/v%s/" % version.split("-")[1]

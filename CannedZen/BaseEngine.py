@@ -17,22 +17,13 @@ class RegisterEngine(type):
     def __new__(cls, name, bases, attrs):
         super_new = super(RegisterEngine, cls).__new__
         new_class = super_new(cls, name, bases, attrs)
-        if(name != "RegisteredEngine"):
+        if(name != "BaseEngine"):
             EngineRegistrar.registerPackage(new_class, new_class.__name__, new_class.categories)
             methodList = [method for method in dir(new_class) if callable(getattr(new_class, method))]
             registeredMethods = [method for method in methodList if hasattr(getattr(new_class, method), "registerThis")]
             for method in registeredMethods:
                 CommandRegistrar.registerCommand(new_class.__name__, getattr(new_class, method), getattr(new_class, method).__name__)
         return new_class
-
-class RegisteredEngine(object):
-    __metaclass__ = RegisterEngine
-    """
-    A container class to assist in the autoregistration of classes. This allows you to extend all base classes from one class
-    But only register certain ones. This is helpful if you want to create intermediate classes but don't need them registered.
-    """
-    def __init__(self, *args, **kw):
-        pass
 
 # This is the Base Class for a Plug and Play Component
 # The functions listed are mostly left as interface methods
@@ -43,6 +34,7 @@ class RegisteredEngine(object):
 class BaseEngine(object):
     version = "0.0.--.0.0"
     description = "Unimplemented description field."
+    __metaclass__ = RegisterEngine
     __depends__ = {}
     __exposes__ = {}
 

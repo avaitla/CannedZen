@@ -1,7 +1,7 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 
-class VirtualEnv(BaseEngine, RegisteredEngine):
+class VirtualEnv(BaseEngine):
     categories = ["python", "module", "virtualenv"]
 
     def install(self): self.__virtualenv_installer()

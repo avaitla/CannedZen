@@ -1,8 +1,8 @@
-from CannedZen.BaseEngine import BaseEngine, RegisteredEngine
+from CannedZen.BaseEngine import BaseEngine
 from CannedZen.Utils.Base_Utilities import command
 from os.path import isdir, join
 
-class ModWSGI(BaseEngine, RegisteredEngine):
+class ModWSGI(BaseEngine):
     categories = ["apache", "python"]
     version = "mod_wsgi-2.5" 
     source_url = "http://modwsgi.googlecode.com/files/"
