@@ -9,13 +9,14 @@ class EngineRegistrarObject(object):
     def __init__(self):
         self.categories = {}
         self.packages = {}
+        self.classFactories = {}
     
     def registerPackage(self, engine, name, categories=[]):
         assert name not in self.packages, "Name %s Already Exists in Packages" % name
         self.packages[name] = engine
         for category in categories:
             self.categories.setdefault(category, []).append(name)
-    
+
     def getPackage(self, name):
         return self.packages[name]
 
@@ -28,6 +29,10 @@ EngineRegistrar = EngineRegistrarObject()
 # having to use the metaclass inheritance
 def registerEngine(cls):
     EngineRegistrar.registerPackage(cls, cls.__name__, cls.categories)
+
+# If we want to register a factory, we'll have to go this method
+def registerEngineFactory(func, name):
+    EngineRegistrar.classFactories[name] = func
 
 
 class RegisterEngine(type):
