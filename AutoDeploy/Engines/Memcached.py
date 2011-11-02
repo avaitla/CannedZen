@@ -23,7 +23,7 @@ class Memcached(BaseEngine):
         command('''curl -o "%s.tar.gz" "%s%s.tar.gz"''' % (self.version, self.source_url, self.version))
         command('''tar -xzf "%s.tar.gz"''' % self.version)
         command('''(cd %s && chmod u+x configure && ./configure --prefix="%s" --with-libevent="%s" && make && make install)''' % 
-               (self.version, self.app_path, self.__depends__["LibEvent"]["app_path"]))
+               (self.version, self.app_path, self.LibEvent))
         command('''rm -rf %s && rm %s.tar.gz''' % (self.version, self.version))
         return True
 

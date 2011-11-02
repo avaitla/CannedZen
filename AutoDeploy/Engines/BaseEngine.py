@@ -18,7 +18,8 @@ class EngineRegistrarObject(object):
             self.categories.setdefault(category, []).append(name)
 
     def getPackage(self, name):
-        return self.packages[name]
+        try: return self.packages[name]
+        except KeyError: return None
 
 EngineRegistrar = EngineRegistrarObject()
 
@@ -49,6 +50,7 @@ class RegisterEngine(type):
 class BaseEngine(object):
     __metaclass__ = RegisterEngine
     depends = []
+
 
     def __init__(self, **kwargs):
         # We will do this simple resolution here for the
