@@ -1,26 +1,8 @@
-from CannedZen.Utils.Base_Utilities import default_app_path, try_delete_path
+from CannedZen.Registration import EngineRegistrar, CommandRegistrar
+from CannedZen.Utils.Base_Utilities import default_app_path, try_delete_path, command
+from CannedZen.Utils.FileHelper import FileHelperObject
+from CannedZen import GlobalSettings
 import os, copy
-
-# This Class Provides A Container for storing various
-# packages and relevant categories those packages may
-# fall into. In general we build one of these, and then
-# we simply use registerPackage with that object.
-class EngineRegistrarObject(object):
-    def __init__(self):
-        self.categories = {}
-        self.packages = {}
-    
-    def registerPackage(self, engine, name, categories=[]):
-        assert name not in self.packages, "Name %s Already Exists in Packages" % name
-        self.packages[name] = engine
-        for category in categories:
-            self.categories.setdefault(category, []).append(name)
-    
-    def getPackage(self, name):
-        return self.packages[name]
-
-EngineRegistrar = EngineRegistrarObject()
-
 
 # Decorator for Registering an Engine
 # This is not really used anywhere, but it means that
@@ -31,9 +13,26 @@ def registerEngine(cls):
 
 
 class RegisterEngine(type):
-    def __init__(cls, name, bases, dct):
-        super(RegisterEngine, cls).__init__(name, bases, dct)
-        if(name != "BaseEngine"): registerEngine(cls)
+
+    def __new__(cls, name, bases, attrs):
+        super_new = super(RegisterEngine, cls).__new__
+        new_class = super_new(cls, name, bases, attrs)
+        if(name != "RegisteredEngine"):
+            EngineRegistrar.registerPackage(new_class, new_class.__name__, new_class.categories)
+            methodList = [method for method in dir(new_class) if callable(getattr(new_class, method))]
+            registeredMethods = [method for method in methodList if hasattr(getattr(new_class, method), "registerThis")]
+            for method in registeredMethods:
+                CommandRegistrar.registerCommand(new_class.__name__, getattr(new_class, method), getattr(new_class, method).__name__)
+        return new_class
+
+class RegisteredEngine(object):
+    __metaclass__ = RegisterEngine
+    """
+    A container class to assist in the autoregistration of classes. This allows you to extend all base classes from one class
+    But only register certain ones. This is helpful if you want to create intermediate classes but don't need them registered.
+    """
+    def __init__(self, *args, **kw):
+        pass
 
 # This is the Base Class for a Plug and Play Component
 # The functions listed are mostly left as interface methods
@@ -42,14 +41,16 @@ class RegisterEngine(type):
 # All internal methods must be idempotent, as in calling twice
 # is the same as calling once
 class BaseEngine(object):
-    __metaclass__ = RegisterEngine
+    version = "0.0.--.0.0"
+    description = "Unimplemented description field."
     __depends__ = {}
     __exposes__ = {}
 
-    def __init__(self, kwargs = {}):
-        self.resolveDepends()
+    def __init__(self, *args, **kw):
+        kwargs = kw.get('kwargs', {})
+        
         if "app_path" not in kwargs or kwargs["app_path"] is None:
-            kwargs["app_path"] = default_app_path(__file__, self.__class__.__name__)    
+            kwargs["app_path"] = os.path.join(GlobalSettings.installPath, self.__class__.__name__)    
 
         if(os.path.exists(kwargs["app_path"])): self.installed = True
         else: self.installed = False
@@ -57,7 +58,9 @@ class BaseEngine(object):
         self.app_path = kwargs["app_path"]
         del kwargs["app_path"]
 
-        for key in kwargs.keys(): self.__setattr__(key, kwargs[key]) 
+        for key in kwargs.keys(): self.__setattr__(key, kwargs[key])
+        
+        self.fileHelper = FileHelperObject(self.__class__.__name__)
 
     def resolveDepends(self):
         __newDepends = dict()
@@ -106,6 +109,7 @@ class BaseEngine(object):
     def install(self, force = False): raise NotImplemented
 
     def default_install(self, func_callback, force = False):
+        self.resolveDepends()
         if(force):
             if(not try_delete_path(self.app_path)): raise FilePermissionException
             self.installed = False
@@ -135,3 +139,26 @@ class BaseEngine(object):
             start_status = self.start()
             return (stop_status and start_status)
         return func_callback()
+    
+    def download(self, *args, **kw):
+        return self.fileHelper.download(*args, **kw)
+    
+    def unTar(self, *args, **kw):
+        return self.fileHelper.unTar(*args, **kw)
+    
+    def runConfigAndMake(self, directory, flags={}):
+        
+        configPath = os.path.abspath(os.path.join(directory, 'configure'))
+        assert os.path.exists(configPath)
+        command('chmod u+x %s' % configPath)
+        flagString = ''
+        for flag, arg in flags.items():
+            flagString += flag
+            if arg:
+                flagString += "=%s" % arg
+            flagString += " "
+        command('cd %s && bash %s -q %s && make && make install' % (directory, configPath, flagString))
+    
+    
+    def cleanUp(self):
+        return self.fileHelper.cleanUp()
