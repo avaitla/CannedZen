@@ -1,4 +1,4 @@
-from Utils.Base_Utilities import default_app_path, try_delete_path
+from CannedZen.Utils.Base_Utilities import default_app_path, try_delete_path
 import os, copy
 
 # This Class Provides A Container for storing various
