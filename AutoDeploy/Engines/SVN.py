@@ -4,15 +4,15 @@ from os.path import isdir, join
 
 class SVN(BaseEngine):
     categories = ["server", "version-control"]
-    version = "mod_wsgi-2.5"
-    source_url = "http://modwsgi.googlecode.com/files/"
+    version = "subversion-1.6.17"
+    source_url = "http://subversion.tigris.org/downloads/"
+    depends = ["ApachePortableRuntime"]
 
-    def install(self, force = False): return self.default_install(self.__modwsgi_installer, force)
+    def install(self, force = False): return self.default_install(self.__svn_installer, force)
 
     # Private Methods not to be used Externally
-    def __modwsgi_installer(self):
-        command('''curl -o mod_wsgi.tgz "%s%s.tar.gz"''' % (self.source_url, self.version))
-        command('''tar -xzf mod_wsgi.tgz''')
-        command('''(cd mod_wsgi-2.5 && chmod u+x configure && ./configure --with-apxs="%s" && make)''' % join(self.app_path, "bin/apxs"))
-        command('''cp mod_wsgi-2.5/.libs/mod_wsgi.so "%s/modules"''' % self.app_path)
-        command('''rm mod_wsgi.tgz && rm -rf mod_wsgi-2.5''')
+    def __svn_installer(self):
+        command('''curl -o %s.tar.bz2 "%s%s.tar.bz2"''' % (self.version, self.source_url, self.version))
+        command('''tar -xjvf %s.tar.bz2''' % (self.version))
+        command('''(cd %s && chmod u+x configure && ./configure --prefix="%s" && make && make install)''' % (self.version, self.app_path))
+        command('''rm %s.tar.bz2 && rm -rf %s''' % (self.version, self.version))

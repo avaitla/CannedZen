@@ -5,9 +5,9 @@ import os
 
 class Django(BaseEngine):
     categories = ["python", "module", "virtualenv"]
-    __depends__  = {"PyModule" : {"module_name" : "django", "app_path" : None, "VirtualEnv" : None}}
+    depends = ["PyModule(Django)"]
 
-    def __init__(self, kwargs = {}):
+    def __init__(self, **kwargs):
         try: self.project_name = kwargs["project_name"]
         except KeyError: self.project_name = "DjangoProject"
         super(Django, self).__init__(kwargs)

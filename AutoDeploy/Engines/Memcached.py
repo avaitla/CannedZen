@@ -6,7 +6,7 @@ class Memcached(BaseEngine):
     categories = ["cache", "caching"]
     version = "memcached-1.4.8_rc1"
     source_url = "http://memcached.googlecode.com/files/"
-    __depends__ = {"LibEvent" : {"app_path" : None}}
+    depends = ["LibEvent"]
 
     def start(self, ip = "127.0.0.1", port = 11211, mb = 64, user = "$USER"):
         func = curry(self.__memcached_starter)(ip)(port)(mb)(user)

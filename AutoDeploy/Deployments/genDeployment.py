@@ -19,3 +19,6 @@ def __genListDeployment(packages, rootDirectory):
     for pack in packages:
         cls = getPackage(pack)
         depends = cls.__depends__
+
+def SinglePackage(package_name):
+    

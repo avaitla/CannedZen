@@ -2,8 +2,7 @@ import os, sys
 from BaseEngine import EngineRegistrar
 
 for module in os.listdir(os.path.dirname(__file__)):
-    if module == '__init__.py' or module[-3:] != '.py' or module == "BaseEngine.py":
-        continue
+    if module == '__init__.py' or module[-3:] != '.py' or module == "BaseEngine.py": continue
     __import__(module[:-3], locals(), globals())
 
 if __name__ == "__main__":

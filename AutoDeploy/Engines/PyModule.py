@@ -2,10 +2,9 @@ from BaseEngine import BaseEngine
 from Utils.Base_Utilities import command
 from os.path import join
 
-class PyModule(BaseEngine):
-    categories = ["python", "module", "virtualenv"]
-    __depends__ = {"VirtualEnv" : {"app_path" : None}}
-
+# In this case, we build the classes on the fly.
+# this is essentially a Class Factory.
+def PyModule(module_name):
     def install(self, sudo = False):
         self.__pymodule_installer(sudo)
         return True
@@ -20,3 +19,8 @@ class PyModule(BaseEngine):
 
     def requestVariable(self, string):
         if(string == "VirtualEnv"): return self.__depends__["VirtualEnv"]["app_path"]
+
+    customClass = type("PyModule(%s)" % str(module_name), (BaseEngine,), {"install" : install, 
+                       "__pymodule_installer" : __pymodule_installer,
+                       "requestVariable" : requestVariable, "depends" : ["VirtualEnv"], "categories" : ["python", "module", "virtualenv"]})
+    return customClass

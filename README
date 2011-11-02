@@ -1,0 +1,52 @@
+Under Development.
+
+
+Contributors
+----------------------
+
+a-wild-tigger
+dracule
+
+
+
+Basic File Structure
+---------------------
+
+Admin
+-----
+
+    Administrative - Not Sure what That means yet
+
+Utils
+-----
+
+    General Purpose Utilites that are not specific to this
+    package and may be used independently outside of it.
+    Currently this includes a minimal Templating Engine
+    It also has path checking, joining, currying, (os.path stuff)
+    It also has all custom exceptions
+
+Templates
+---------
+
+    General Configuration Files for random packages, to be used with
+    the templating engine included in Utils. Currently contains apache
+    and nginx config files.
+
+Engines
+-------
+
+    Package Installers that can be used standalone, as well as the base class
+    BaseEngine.py
+
+Interacts
+---------
+
+    Pairwise resolution between two packages.
+
+Deployments
+-----------
+
+    Code generation, more powerful dependency resolution, and automation
+    systems. This does the heavy work or tieing everything together.
+    Not currently implemented.

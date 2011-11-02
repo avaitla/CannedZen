@@ -6,8 +6,6 @@ class LibEvent(BaseEngine):
     version = "libevent-2.0.14-stable"
     source_url = "https://github.com/downloads/libevent/libevent/"
 
-    def __init__(self, kwargs = {}): super(LibEvent, self).__init__(kwargs)
-
     def install(self, force = False): return self.default_install(self.__libevent_installer, force)
 
     # Private Methods not to be used Externally

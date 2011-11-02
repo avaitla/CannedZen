@@ -43,52 +43,51 @@ class RegisterEngine(type):
 # is the same as calling once
 class BaseEngine(object):
     __metaclass__ = RegisterEngine
-    __depends__ = {}
-    __exposes__ = {}
+    depends = []
 
-    def __init__(self, kwargs = {}):
-        self.resolveDepends()
+    def __init__(self, **kwargs):
+        # We will do this simple resolution here for the
+        # time being, so that users don't need the cruft
+        # of the entire framework
         if "app_path" not in kwargs or kwargs["app_path"] is None:
-            kwargs["app_path"] = default_app_path(__file__, self.__class__.__name__)    
+            kwargs["app_path"] = default_app_path(__file__, self.__class__.__name__)
 
+        # Given the app path, let's check if it is installed or not
         if(os.path.exists(kwargs["app_path"])): self.installed = True
         else: self.installed = False
 
-        self.app_path = kwargs["app_path"]
-        del kwargs["app_path"]
+        # set it up and delete it
+        self.app_path = kwargs["app_path"]; del kwargs["app_path"]
 
-        for key in kwargs.keys(): self.__setattr__(key, kwargs[key]) 
+        # give a generic variable setup
+        for key in kwargs.keys():
+            self.__setattr__(key, kwargs[key])
 
-    def resolveDepends(self):
-        __newDepends = dict()
-        for pack_name in self.__depends__.keys():
-            package = EngineRegistrar.getPackage(pack_name)
-            if(isinstance(self.__depends__[pack_name], dict)):
-                pack = package(copy.deepcopy(self.__depends__[pack_name]))
-                if not pack.installed: pack.install()
-                __newDepends[pack_name] = pack.getResolutions(copy.deepcopy(self.__depends__[pack_name]))
-                for key in __newDepends[pack_name].keys():
-                    ret_val = pack.requestVariable(key)
-                    if ret_val is not None: __newDepends[pack_name][key] = ret_val
+    # We will comment this out for the time being, until
+    # we can resolve the new system
 
-            elif(isinstance(self.__depends__[pack_name], list)):
-                __newDepends[pack_name] = list()
-                for item in self.__depends__[pack_name]:
-                    pack = package(copy.deepcopy(item))
-                    if not pack.installed: pack.install()
-                    __newDepends[pack_name].append(pack.getResolutions(copy.deepcopy(item)))
-                    for key in __newDepends[pack_name][-1].keys():
-                        ret_val = pack.requestVariable(key)
-                        if ret_val is not None: __newDepends[pack_name][-1][key] = ret_val
-
-        self.__depends__ = __newDepends
-
-    def requestVariable(self, string): return None
-    def getResolutions(self, requirements_as_dict):
-        for key in requirements_as_dict.keys():
-            requirements_as_dict[key] = self.__getattribute__(key)
-        return requirements_as_dict
-
+    #def resolveDepends(self):
+    #    __newDepends = dict()
+    #    for pack_name in self.__depends__.keys():
+    #        package = EngineRegistrar.getPackage(pack_name)
+    #        if(isinstance(self.__depends__[pack_name], dict)):
+    #            pack = package(copy.deepcopy(self.__depends__[pack_name]))
+    #            if not pack.installed: pack.install()
+    #            __newDepends[pack_name] = pack.getResolutions(copy.deepcopy(self.__depends__[pack_name]))
+    #            for key in __newDepends[pack_name].keys():
+    #                ret_val = pack.requestVariable(key)
+    #                if ret_val is not None: __newDepends[pack_name][key] = ret_val
+    #
+    #        elif(isinstance(self.__depends__[pack_name], list)):
+    #            __newDepends[pack_name] = list()
+    #            for item in self.__depends__[pack_name]:
+    #                pack = package(copy.deepcopy(item))
+    #                if not pack.installed: pack.install()
+    #                __newDepends[pack_name].append(pack.getResolutions(copy.deepcopy(item)))
+    #                for key in __newDepends[pack_name][-1].keys():
+    #                    ret_val = pack.requestVariable(key)
+    #                    if ret_val is not None: __newDepends[pack_name][-1][key] = ret_val
+    #    self.__depends__ = __newDepends
 
     def start(self): raise NotImplemented
     def default_start(self, func_callback):
@@ -96,15 +95,12 @@ class BaseEngine(object):
             if(not self.install()): return False
         return func_callback()
 
-
     def stop(self): raise NotImplemented
     def default_stop(self, func_callback):
         if(not self.installed): return True
         return func_callback()
 
-
     def install(self, force = False): raise NotImplemented
-
     def default_install(self, func_callback, force = False):
         if(force):
             if(not try_delete_path(self.app_path)): raise FilePermissionException
@@ -113,6 +109,7 @@ class BaseEngine(object):
             os.makedirs(self.app_path)
             self.installed = func_callback()
         return self.installed
+
 
     def uninstall(self): raise NotImplemented
     def default_uninstall(self, func_callback = None):
@@ -124,9 +121,8 @@ class BaseEngine(object):
                 raise UninstallingItemDNEException
             self.installed = False
 
-    def restart(self):
-        raise NotImplemented
 
+    def restart(self): raise NotImplemented
     def default_restart(self, func_callback = None):
         if(not self.installed):
             if(not self.install()): return False
