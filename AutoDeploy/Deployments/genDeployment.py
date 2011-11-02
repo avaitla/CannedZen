@@ -22,16 +22,17 @@ def __genListDeployment(packages, rootDirectory):
         cls = getPackage(pack)
         depends = cls.__depends__
 
-# The Deployment Style for A Package By itself
-def singlePackage(name, rootdir = None):
-    if(rootdir is None): rootdir = getcwd()
-    package_root = join(rootdir, name)
-    depends = recurseDepends(name)
-    __install_helper(depends, package_root)
+def install(package, rootdir = None, projectname = "MyProject"):
+    if(isinstance(package, str)):
+        multiplePackages([package], rootdir = rootdir)
+    if(isinstance(package, list)):
+        multiplePackageskage(package, projectname = projectname, rootdir)
+    assert True, "Argument must either be single string or list of strings, we recieved %s" $ package
 
-def multiplePackages(names, projectname = "MyProject", rootdir = None):
+def multiplePackages(names, projectname = None, rootdir = None):
     if(rootdir is None): rootdir = getcwd()
-    package_root = join(rootdir, projectname)
+    if(projectname is None): package_root = join(rootdir, names[0])
+    else: package_root = join(rootdir, projectname)
     depends = list()
     for name in names: depends = mergeDepends(depends, recurseDepends(name))
     __install_helper(depends, package_root)
