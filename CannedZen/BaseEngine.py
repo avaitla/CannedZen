@@ -4,32 +4,6 @@ from CannedZen.Utils.FileHelper import FileHelperObject
 from CannedZen import GlobalSettings
 import os, copy
 
-<<<<<<< HEAD
-# This Class Provides A Container for storing various
-# packages and relevant categories those packages may
-# fall into. In general we build one of these, and then
-# we simply use registerPackage with that object.
-class EngineRegistrarObject(object):
-    def __init__(self):
-        self.categories = {}
-        self.packages = {}
-        self.classFactories = {}
-    
-    def registerPackage(self, engine, name, categories=[]):
-        assert name not in self.packages, "Name %s Already Exists in Packages" % name
-        self.packages[name] = engine
-        for category in categories:
-            self.categories.setdefault(category, []).append(name)
-
-    def getPackage(self, name):
-        try: return self.packages[name]
-        except KeyError: return None
-
-EngineRegistrar = EngineRegistrarObject()
-
-
-=======
->>>>>>> remotes/dracule/master
 # Decorator for Registering an Engine
 # This is not really used anywhere, but it means that
 # we can register an engine or interact without
@@ -67,60 +41,16 @@ class BaseEngine(object):
     __metaclass__ = RegisterEngine
     depends = []
 
-<<<<<<< HEAD
-
-    def __init__(self, **kwargs):
-        # We will do this simple resolution here for the
-        # time being, so that users don't need the cruft
-        # of the entire framework
-        if "app_path" not in kwargs or kwargs["app_path"] is None:
-            kwargs["app_path"] = default_app_path(__file__, self.__class__.__name__)
-=======
     def __init__(self, *args, **kw):
         kwargs = kw.get('kwargs', {})
         
         if "app_path" not in kwargs or kwargs["app_path"] is None:
             kwargs["app_path"] = os.path.join(GlobalSettings.installPath, self.__class__.__name__)    
->>>>>>> remotes/dracule/master
 
         # Given the app path, let's check if it is installed or not
         if(os.path.exists(kwargs["app_path"])): self.installed = True
         else: self.installed = False
 
-<<<<<<< HEAD
-        # set it up and delete it
-        self.app_path = kwargs["app_path"]; del kwargs["app_path"]
-
-        # give a generic variable setup
-        for key in kwargs.keys():
-            self.__setattr__(key, kwargs[key])
-
-    # We will comment this out for the time being, until
-    # we can resolve the new system
-
-    #def resolveDepends(self):
-    #    __newDepends = dict()
-    #    for pack_name in self.__depends__.keys():
-    #        package = EngineRegistrar.getPackage(pack_name)
-    #        if(isinstance(self.__depends__[pack_name], dict)):
-    #            pack = package(copy.deepcopy(self.__depends__[pack_name]))
-    #            if not pack.installed: pack.install()
-    #            __newDepends[pack_name] = pack.getResolutions(copy.deepcopy(self.__depends__[pack_name]))
-    #            for key in __newDepends[pack_name].keys():
-    #                ret_val = pack.requestVariable(key)
-    #                if ret_val is not None: __newDepends[pack_name][key] = ret_val
-    #
-    #        elif(isinstance(self.__depends__[pack_name], list)):
-    #            __newDepends[pack_name] = list()
-    #            for item in self.__depends__[pack_name]:
-    #                pack = package(copy.deepcopy(item))
-    #                if not pack.installed: pack.install()
-    #                __newDepends[pack_name].append(pack.getResolutions(copy.deepcopy(item)))
-    #                for key in __newDepends[pack_name][-1].keys():
-    #                    ret_val = pack.requestVariable(key)
-    #                    if ret_val is not None: __newDepends[pack_name][-1][key] = ret_val
-    #    self.__depends__ = __newDepends
-=======
         self.app_path = kwargs["app_path"]
         del kwargs["app_path"]
 
@@ -158,9 +88,6 @@ class BaseEngine(object):
             requirements_as_dict[key] = self.__getattribute__(key)
         return requirements_as_dict
 
->>>>>>> remotes/dracule/master
-
-    def start(self): raise NotImplemented
     def default_start(self, func_callback):
         if(not self.installed):
             if(not self.install()): return False
