@@ -1,5 +1,5 @@
-from BaseEngine import BaseEngine
-from Utils.Base_Utilities import command
+from CannedZen.BaseEngine import BaseEngine
+from CannedZen.Utils.Base_Utilities import command
 
 class LibEvent(BaseEngine):
     categories = ["event", "notification"]

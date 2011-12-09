@@ -1,11 +1,15 @@
+from CannedZen.BaseEngine import EngineRegistrar
 import os, sys
-from BaseEngine import EngineRegistrar
+
 
 for module in os.listdir(os.path.dirname(__file__)):
     if module == '__init__.py' or module[-3:] != '.py' or module == "BaseEngine.py": continue
     __import__(module[:-3], locals(), globals())
 
+EngineRegistrar.initializeEngines()
+
 if __name__ == "__main__":
+    
     if(len(sys.argv) != 2 and len(sys.argv) != 3):
         print "\n\tPlease Type the Package Name as First Argument"
         print "\n\tOptionally Second Command can be install, uninstall, start, stop, restart (default is install)"
