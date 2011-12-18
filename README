@@ -8,6 +8,12 @@ a-wild-tigger
 dracule
 
 
+To-Do
+----------------------
+
+Roll Back Deployments (In case a single part breaks)
+Use subprocess module
+
 
 Basic File Structure
 ---------------------

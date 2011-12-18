@@ -30,4 +30,3 @@ class PrinterObject(object):
             print "%s%s%s" % (self.decorator*self.level, prepend, line)
 
 Printer = PrinterObject()
-    

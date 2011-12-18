@@ -6,7 +6,7 @@ class ModWSGI(BaseEngine):
     categories = ["apache", "python"]
     version = "mod_wsgi-2.5" 
     source_url = "http://modwsgi.googlecode.com/files/"
-    depends = ["Apache"]
+    depends = [("Apache", {"app_path" : None})]
 
     def install(self, force = False): return self.default_install(self.__modwsgi_installer, force)
 

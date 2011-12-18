@@ -1,6 +1,8 @@
-from CannedZen.BaseEngine import EngineRegistrar
 import os, sys
+sys.path.append("/Users/Tigger/Documents/CannedZen")
 
+from CannedZen.BaseEngine import EngineRegistrar
+from CannedZen.Registration import GlobalSettings
 
 for module in os.listdir(os.path.dirname(__file__)):
     if module == '__init__.py' or module[-3:] != '.py' or module == "BaseEngine.py": continue
@@ -9,7 +11,6 @@ for module in os.listdir(os.path.dirname(__file__)):
 EngineRegistrar.initializeEngines()
 
 if __name__ == "__main__":
-    
     if(len(sys.argv) != 2 and len(sys.argv) != 3):
         print "\n\tPlease Type the Package Name as First Argument"
         print "\n\tOptionally Second Command can be install, uninstall, start, stop, restart (default is install)"
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     if(len(sys.argv) == 3): command = sys.argv[2]
     else: command = "install"
 
-    pack = EngineRegistrar.packages[package_name]()
+    pack = EngineRegistrar.packages[package_name](settings = GlobalSettings())
 
     if command == "install": pack.install()
     elif command == "uninstall": pack.uninstall()

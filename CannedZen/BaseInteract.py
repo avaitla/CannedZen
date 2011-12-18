@@ -1,5 +1,5 @@
 from Utils.Base_Utilities import default_app_path
-from Engines import EngineRegistrar
+from CannedZen.Registration import EngineRegistrar, CommandRegistrar
 import os.path.exists as exists
 
 class InteractsRegistrarObject(object):
@@ -25,17 +25,9 @@ class InteractsRegistrarObject(object):
 
 InteractRegistrar = InteractsRegistrarObject()
 
-
-
 def registerInteract(cls):
     InteractRegistrar.registerInteract(cls, cls.engine1name, cls.engine2name)
     return cls
-
-class RegisterEngine(type):
-    def __init__(cls, name, bases, dct):
-        obj = super(RegisterEngine, cls).__init__(name, bases, dct)
-        if(name != "BaseEngine"): registerEngine(cls)
-        return obj
 
 class RegisterInteract(type):
     def __init__(cls, name, bases, dct):

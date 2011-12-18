@@ -1,8 +1,13 @@
-from CannedZen.Registration import EngineRegistrar, CommandRegistrar
+from CannedZen.Registration import EngineRegistrar, CommandRegistrar, GlobalSettings
 from CannedZen.Utils.Base_Utilities import default_app_path, try_delete_path, command
 from CannedZen.Utils.FileHelper import FileHelperObject
-from CannedZen import GlobalSettings
 import os, copy
+
+
+def getEngineFactory(name):
+    try: return EngineRegistrar.classFactories[name]
+    except KeyError: return None
+
 
 # Decorator for Registering an Engine
 # This is not really used anywhere, but it means that
@@ -11,23 +16,76 @@ import os, copy
 def registerEngine(cls):
     EngineRegistrar.registerPackage(cls, cls.__name__, cls.categories)
 
-# If we want to register a factory, we'll have to go this method
+# If we want to register a factory, we'll have to use this method
 def registerEngineFactory(func, name):
     EngineRegistrar.classFactories[name] = func
 
-
+# This is the core metaclass for BaseEngine, it also supports
+# command registration as long as class methods are decorated with
+# @registerCommand. Then the command is registered with the name of
+# the functions name
 class RegisterEngine(type):
-
     def __new__(cls, name, bases, attrs):
         super_new = super(RegisterEngine, cls).__new__
         new_class = super_new(cls, name, bases, attrs)
         if(name != "BaseEngine"):
-            EngineRegistrar.registerPackage(new_class, new_class.__name__, new_class.categories)
+            registerEngine(new_class)
             methodList = [method for method in dir(new_class) if callable(getattr(new_class, method))]
             registeredMethods = [method for method in methodList if hasattr(getattr(new_class, method), "registerThis")]
             for method in registeredMethods:
                 CommandRegistrar.registerCommand(new_class.__name__, getattr(new_class, method), getattr(new_class, method).__name__)
         return new_class
+
+def merge_depends(accum, new_lst):
+    new_deps = new_lst
+    for item in accum:
+        if not item in new_deps: new_deps.append(item)
+    return new_deps
+
+
+def generateDynamicClass(dep):
+    # This case to handle on the fly 
+    # computed classes needs to be handled better
+    # currently it is the case that if there is a
+    # parenthesis in the name we consider it dynamic :p
+    # for instance PyModule(Django) is a dynamic module
+    if("(" in dep and ")" in dep):
+        factory, remainder = dep.split("(")
+        argument_as_string = remainder.split(")")[0]
+        fact = getEngineFactory(factory)
+        if(fact is not None):
+            return fact(argument_as_string)
+    return None
+
+
+def recurseDepends(basePackage):
+    basePackage = str(basePackage)
+    container = list()
+
+    # The idea here is if we can't find the 
+    # package then we simply assume it is a
+    # factory, and if it isn't then we simply
+    # print a statement and move on
+    pack = getPackage(basePackage)
+    if(pack is None):
+        pack = generateDynamicClass(basePackage)
+        if(pack is None):
+            print "Could Not Identify Dependency %s as Package or Factory" % basePackage
+            return container
+
+    if(basePackage in container):
+        container.remove(basePackage)
+
+    container.append(basePackage)
+    for dep in pack.depends:
+        rec = recurseDepends(dep)
+        #print "Before Merge %s" % container
+        container = mergeDepends(container, rec)
+        #print "After Merging with %s => %s" % (rec, container)
+    return container
+
+
+
 
 # This is the Base Class for a Plug and Play Component
 # The functions listed are mostly left as interface methods
@@ -40,53 +98,34 @@ class BaseEngine(object):
     description = "Unimplemented description field."
     __metaclass__ = RegisterEngine
     depends = []
+    optionalArgs = {"app_path" : None}
 
     def __init__(self, *args, **kw):
-        kwargs = kw.get('kwargs', {})
+        if "global_settings" in kw: self.global_settings = kw["settings"]
+        else: self.settings = GlobalSettings()
         
-        if "app_path" not in kwargs or kwargs["app_path"] is None:
-            kwargs["app_path"] = os.path.join(GlobalSettings.installPath, self.__class__.__name__)    
+        # Resolve the App Path Issue
+        if(self.__class__.__name__ in self.settings.packages):
+            if not "app_path" in self.settings.packages[self.__class__.__name__]:
+                self.settings.packages[self.__class__.__name__]["app_path"] = self.settings.default_install_path
+        else:
+            self.settings.packages[self.__class__.__name__] = dict()
+            self.settings.packages[self.__class__.__name__]["app_path"] = self.settings.default_install_path
+        self.app_path = os.path.join(self.settings.packages[self.__class__.__name__]["app_path"], self.__class__.__name__)
 
         # Given the app path, let's check if it is installed or not
-        if(os.path.exists(kwargs["app_path"])): self.installed = True
+        if(os.path.exists(self.app_path)): self.installed = True
         else: self.installed = False
-
-        self.app_path = kwargs["app_path"]
-        del kwargs["app_path"]
-
-        for key in kwargs.keys(): self.__setattr__(key, kwargs[key])
         
         self.fileHelper = FileHelperObject(self.__class__.__name__)
 
-    def resolveDepends(self):
-        __newDepends = dict()
-        for pack_name in self.__depends__.keys():
-            package = EngineRegistrar.getPackage(pack_name)
-            if(isinstance(self.__depends__[pack_name], dict)):
-                pack = package(copy.deepcopy(self.__depends__[pack_name]))
-                if not pack.installed: pack.install()
-                __newDepends[pack_name] = pack.getResolutions(copy.deepcopy(self.__depends__[pack_name]))
-                for key in __newDepends[pack_name].keys():
-                    ret_val = pack.requestVariable(key)
-                    if ret_val is not None: __newDepends[pack_name][key] = ret_val
-
-            elif(isinstance(self.__depends__[pack_name], list)):
-                __newDepends[pack_name] = list()
-                for item in self.__depends__[pack_name]:
-                    pack = package(copy.deepcopy(item))
-                    if not pack.installed: pack.install()
-                    __newDepends[pack_name].append(pack.getResolutions(copy.deepcopy(item)))
-                    for key in __newDepends[pack_name][-1].keys():
-                        ret_val = pack.requestVariable(key)
-                        if ret_val is not None: __newDepends[pack_name][-1][key] = ret_val
-
-        self.__depends__ = __newDepends
-
-    def requestVariable(self, string): return None
-    def getResolutions(self, requirements_as_dict):
-        for key in requirements_as_dict.keys():
-            requirements_as_dict[key] = self.__getattribute__(key)
-        return requirements_as_dict
+    def get_dependencies(self):        
+        if(self.depends == []): return [self.__name__]
+        
+        new_depends = []
+        for (depend_name, depend_options) in self.depends:
+             new_depends = merge_depends(new_depends, EngineRegistrar.getPackage(depend_name).get_dependencies())
+        return new_depends
 
     def default_start(self, func_callback):
         if(not self.installed):
@@ -97,6 +136,20 @@ class BaseEngine(object):
     def default_stop(self, func_callback):
         if(not self.installed): return True
         return func_callback()
+
+    def resolveDepends(self):
+        for pack_name in self.depends:
+            package = EngineRegistrar.getPackage(pack_name)
+            if(package is None):
+                package = generateDynamicClass(pack_name)
+                if(package is None):
+                    print "Could Not Identify Dependency %s as Package or Factory" % basePackage
+                    return
+
+            pack_class = package(settings = self.settings)
+            pack_class.install()
+            self.settings = pack_class.settings
+
 
     def install(self, force = False): raise NotImplemented
     def default_install(self, func_callback, force = False):
@@ -138,7 +191,6 @@ class BaseEngine(object):
         return self.fileHelper.unTar(*args, **kw)
     
     def runConfigAndMake(self, directory, flags={}):
-        
         configPath = os.path.abspath(os.path.join(directory, 'configure'))
         assert os.path.exists(configPath)
         command('chmod u+x %s' % configPath)

@@ -1,19 +1,20 @@
 from Admin.Admin import getPackage, getPackages, getPackageNames, getEngineFactory
 from Utils.Base_Utilities import current_path
 from os.path import join
+from itertools import combinations
 from os import makedirs, getcwd
 
-# This is the Only Item to Be Exported
-def genDeployment(packages, rootDirectory = current_path(__file__)):
-    if(isinstance(packages, dict)): return __genDictDeployment(packages)
-    if(isinstance(packages, list)): return __genListDeployment(packages)
-    assert True, "Packages Must Either Be a List or a Dict"
-
-
-# User Prespecified Routes Taken
-def __genDictDeployment(packages, rootDirectory):
-    pass
-
+class InteractionDeployment(object):
+    engines = []
+    def install():
+        total_depends = []
+        for item in engines: total_depends = merge_depends(total_depends, item.get_dependencies())
+        for dependency in total_depends: dependency.install()
+        
+        pairs = combinations(total_depends, 2)
+        for (pair1, pair2) in pairs: InteractRegistrar.getInteraction(pair1, pair2).install()
+        
+                
 
 # All Defaults Are Taken
 def __genListDeployment(packages, rootDirectory):
@@ -66,16 +67,6 @@ def generateDynamicClass(dep):
             return fact(argument_as_string)
     return None
 
-def mergeDepends(dep1, dep2):
-    # This may seem stupid at first, but
-    # it makes handling dependencies easier, since we will put 
-    # items at the end which have no dependencies, so 
-    # that when we get this list back, we simply need to construct in reverse
-    # so dependencies will always be satisfied in linear fashion
-    for item in dep2:
-        if item in dep1: dep1.remove(item)
-        dep1.append(item)
-    return dep1
 
 def recurseDepends(basePackage):
     basePackage = str(basePackage)

@@ -1,3 +1,12 @@
+from CannedZen.Deployments.genDeployment import InteractionDeployment
+from CannedZen.Engines import Apache, ModWSGI, Django
+
+class FullDjango(InteractionDeployment):
+    engines = [Apache, ModWSGI, Django]
+    
+FullDjango().install()
+
+
 from Admin.Admin import generateDeployment
 
 rootDirectory = None

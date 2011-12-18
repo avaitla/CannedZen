@@ -17,8 +17,7 @@ class Nginx(BaseEngine):
     def __nginx_installer(self):
         command('''curl -o "%s.tar.gz" "%s%s.tar.gz"''' % (self.version, self.source_url, self.version))
         command('''tar -xzf "%s.tar.gz"''' % self.version)
-        command('''(cd %s && chmod u+x configure && ./configure --prefix="%s" --without-http_rewrite_module 
-                    --without-http_gzip_module && make && make install)''' % (self.version, self.app_path))
+        command('''(cd %s && chmod u+x configure && ./configure --prefix="%s" --without-http_rewrite_module --without-http_gzip_module && make && make install)''' % (self.version, self.app_path))
         command('''rm -rf %s && rm %s.tar.gz''' % (self.version, self.version))
         return True
 

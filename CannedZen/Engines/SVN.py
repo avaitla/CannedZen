@@ -1,12 +1,12 @@
-from BaseEngine import BaseEngine
-from Utils.Base_Utilities import command
+from CannedZen.BaseEngine import BaseEngine
+from CannedZen.Utils.Base_Utilities import command
 from os.path import isdir, join
 
 class SVN(BaseEngine):
     categories = ["server", "version-control"]
     version = "subversion-1.6.17"
     source_url = "http://subversion.tigris.org/downloads/"
-    depends = ["ApachePortableRuntime"]
+    depends = [("ApachePortableRuntime", {"app_path" : None})]
 
     def install(self, force = False): return self.default_install(self.__svn_installer, force)
 

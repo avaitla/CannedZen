@@ -49,8 +49,3 @@ class FileHelperObject(object):
     
     def cleanUp(self):
         command("rm -rf %s" % self.buildDir)
-    
-
-        
-        
-    
