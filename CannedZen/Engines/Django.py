@@ -15,13 +15,11 @@ class Django(BaseEngine):
         except KeyError: self.project_name = "DjangoProject"
         super(Django, self).__init__(*args, **kw)
         
-    def install(self, force = False):
-        self.default_install(self.newProject, force)
-        self.newProject()
+    def install(self, force = False): self.default_install(self.newProject, force)
 
     @registerCommand
     def newProject(self, project_name = "NewProject", sudo = False):
+        print self.settings.packages["VirtualEnv"]["app_path"]
         django_admin = join(self.settings.packages["VirtualEnv"]["app_path"], "bin/django-admin.py")
-        os.makedirs(self.app_path)
         command("(cd %s && %s startproject %s && mkdir static)" % 
                  (self.app_path, django_admin, project_name))

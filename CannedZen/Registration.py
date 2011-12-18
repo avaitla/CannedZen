@@ -18,7 +18,7 @@ class EngineRegistrarObject(object):
     
     def initializeEngines(self):
         for package, engine in self.packages.items():
-            self.engines[package] = engine()
+            self.engines[package] = engine
             
 class InteractsRegistrarObject(object):
     def __init__(self):
@@ -44,7 +44,7 @@ class InteractsRegistrarObject(object):
 
 class GlobalSettings(dict):
     packages = {}
-    default_install_path = "/Users/Tigger/CannedZen"
+    default_install_path = "/Users/Tigger/Apache"
 
 
 

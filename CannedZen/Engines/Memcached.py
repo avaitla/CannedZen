@@ -6,7 +6,7 @@ class Memcached(BaseEngine):
     categories = ["cache", "caching"]
     version = "memcached-1.4.8_rc1"
     source_url = "http://memcached.googlecode.com/files/"
-    depends = [("LibEvent", {"app_path" : None})]
+    depends = ["LibEvent"]
 
     def start(self, ip = "127.0.0.1", port = 11211, mb = 64, user = "$USER"):
         func = curry(self.__memcached_starter)(ip)(port)(mb)(user)
@@ -23,7 +23,7 @@ class Memcached(BaseEngine):
         command('''curl -o "%s.tar.gz" "%s%s.tar.gz"''' % (self.version, self.source_url, self.version))
         command('''tar -xzf "%s.tar.gz"''' % self.version)
         command('''(cd %s && chmod u+x configure && ./configure --prefix="%s" --with-libevent="%s" && make && make install)''' % 
-               (self.version, self.app_path, self.LibEvent))
+               (self.version, self.app_path, self.settings.packages["LibEvent"]["app_path"]))
         command('''rm -rf %s && rm %s.tar.gz''' % (self.version, self.version))
         return True
 

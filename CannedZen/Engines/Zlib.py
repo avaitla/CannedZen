@@ -14,4 +14,4 @@ class Zlib(BaseEngine):
         command('''curl -o %s.tar.gz "%s%s.tar.gz"''' % (self.version, self.source_url, self.version))
         command('''tar -xzf %s.tar.gz''' % self.version)
         command('''(cd %s && chmod u+x configure && ./configure --prefix="%s" && make)''' % (self.version, self.app_path))
-        command('''rm %s.tar.gz && rm -rf %s''' % (self.version, self.version))
+        command('''rm %s.tar.gz && cp -r %s/* %s && rm -rf %s''' % (self.version, self.version, self.app_path, self.version))

@@ -6,6 +6,7 @@ def importPluginModulesIn(dir):
     for path in glob.glob(os.path.join(dir,'[!_]*.py')):
         name, ext = os.path.splitext(os.path.basename(path))
         __import__('Engines', globals(), locals(), [name], -1)
+        __import__('Interacts', globals(), locals(), [name], -1)
 
 #importPluginModulesIn(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Engines'))
     

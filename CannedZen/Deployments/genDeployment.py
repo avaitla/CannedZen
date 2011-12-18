@@ -1,21 +1,78 @@
-from Admin.Admin import getPackage, getPackages, getPackageNames, getEngineFactory
-from Utils.Base_Utilities import current_path
+from CannedZen.Registration import EngineRegistrar, CommandRegistrar, GlobalSettings
+from CannedZen.BaseInteract import InteractRegistrar
+from CannedZen.Utils.Base_Utilities import current_path
+from CannedZen import Interacts
 from os.path import join
 from itertools import combinations
 from os import makedirs, getcwd
 
+def getEngineFactory(name):
+    try: return EngineRegistrar.classFactories[name]
+    except KeyError: return None
+
+def generateDynamicClass(dep):
+    # This case to handle on the fly 
+    # computed classes needs to be handled better
+    # currently it is the case that if there is a
+    # parenthesis in the name we consider it dynamic :p
+    # for instance PyModule(Django) is a dynamic module
+    if("(" in dep and ")" in dep):
+        factory, remainder = dep.split("(")
+        argument_as_string = remainder.split(")")[0]
+        fact = getEngineFactory(factory)
+        if(fact is not None):
+            return fact(argument_as_string)
+    return None
+
+def merge_depends(accum, new_lst):
+    new_deps = new_lst
+    for item in accum:
+        if not item in new_deps: new_deps.append(item)
+    return new_deps
+    
+def get_dependencies(eng):      
+    if(eng.depends == []): return [eng.__name__]
+    new_depends = [eng.__name__]
+    for depend_name in eng.depends:
+         eng = EngineRegistrar.getPackage(depend_name)
+         if eng is None:
+            eng = generateDynamicClass(depend_name)
+            if eng is None:
+                print "Could Not Identify Dependency %s as Package or Factory" % basePackage
+                return
+                
+         new_depends = merge_depends(new_depends, eng.depends)
+    return new_depends
+
 class InteractionDeployment(object):
     engines = []
-    def install():
-        total_depends = []
-        for item in engines: total_depends = merge_depends(total_depends, item.get_dependencies())
-        for dependency in total_depends: dependency.install()
+    
+    def __init__(self, *args, **kwargs):
+        if "settings" not in kwargs: self.settings = GlobalSettings()
+        else: self.settings = kwargs["settings"]
+    
+    def install(self):
+        for engine in self.engines:
+            eng = engine(settings = self.settings)
+            eng.install()
+            self.settings = eng.settings
         
+        total_depends = []
+        for item in self.engines: total_depends = merge_depends(total_depends, get_dependencies(item))
+        print total_depends
+        
+        print(self.settings)
+        input("Try Interacts?")
         pairs = combinations(total_depends, 2)
-        for (pair1, pair2) in pairs: InteractRegistrar.getInteraction(pair1, pair2).install()
+        for (pair1, pair2) in pairs:
+            print ("Checking: (%s, %s)" % (pair1, pair2))
+            interaction = InteractRegistrar.getInteraction(pair1, pair2)
+            if(interaction is None): continue
+            inst = interaction(self.settings)
+            inst.install()
         
                 
-
+'''
 # All Defaults Are Taken
 def __genListDeployment(packages, rootDirectory):
     dependencyHandler = list()
@@ -92,4 +149,4 @@ def recurseDepends(basePackage):
         #print "Before Merge %s" % container
         container = mergeDepends(container, rec)
         #print "After Merging with %s => %s" % (rec, container)
-    return container
+    return container'''

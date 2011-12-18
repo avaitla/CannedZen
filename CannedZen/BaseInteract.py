@@ -1,6 +1,6 @@
 from Utils.Base_Utilities import default_app_path
 from CannedZen.Registration import EngineRegistrar, CommandRegistrar
-import os.path.exists as exists
+from os.path import exists
 
 class InteractsRegistrarObject(object):
     def __init__(self):
@@ -14,8 +14,8 @@ class InteractsRegistrarObject(object):
         engine1_as_str = str(engine1_as_str)
         engine2_as_str = str(engine2_as_str)
         
-        assert (engine1, engine2) not in self.custom_pairs, "Interaction between Engines %s and %s Exists" % (engine1_as_str, engine2_as_str)
-        self.custom_pairs[(engine1, engine2)] = self.custom_pairs[(engine1, engine2)] = interaction
+        assert (engine1_as_str, engine2_as_str) not in self.custom_pairs, "Interaction between Engines %s and %s Exists" % (engine1_as_str, engine2_as_str)
+        self.custom_pairs[(engine1_as_str, engine2_as_str)] = self.custom_pairs[(engine2_as_str, engine1_as_str)] = interaction
 
     def getInteraction(self, engine1_as_str, engine2_as_str):
         engine1_as_str = str(engine1_as_str)
@@ -46,11 +46,11 @@ class BaseInteract(object):
     engine1name = ""
     engine2name = ""
 
-    def __init__(engine1path, engine2path):
-        assert engine1name != "", "engine1name is not specified"
-        assert engine2name != "", "engine2name is not specified"
-        self.engine1path = engine1path
-        self.engine2path = engine2path
+    def __init__(self, settings):
+        self.engine1settings = settings.packages[engine1name]
+        self.engine2settings = settings.packages[engine2name]
+        self.engine1path = self.engine1settings["app_path"]
+        self.engine2path = self.engine2settings["app_path"]
         assert(exists(self.engine1path)), "engineone path does not exist"
         assert(exists(self.engine2path)), "enginetwo path does not exist"
 

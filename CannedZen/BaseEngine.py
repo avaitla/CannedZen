@@ -101,17 +101,19 @@ class BaseEngine(object):
     optionalArgs = {"app_path" : None}
 
     def __init__(self, *args, **kw):
-        if "global_settings" in kw: self.global_settings = kw["settings"]
+        if "settings" in kw: self.settings = kw["settings"]
         else: self.settings = GlobalSettings()
         
         # Resolve the App Path Issue
-        if(self.__class__.__name__ in self.settings.packages):
-            if not "app_path" in self.settings.packages[self.__class__.__name__]:
-                self.settings.packages[self.__class__.__name__]["app_path"] = self.settings.default_install_path
-        else:
+        if not (self.__class__.__name__ in self.settings.packages):
             self.settings.packages[self.__class__.__name__] = dict()
+        
+        if not "app_path" in self.settings.packages[self.__class__.__name__]:
             self.settings.packages[self.__class__.__name__]["app_path"] = self.settings.default_install_path
-        self.app_path = os.path.join(self.settings.packages[self.__class__.__name__]["app_path"], self.__class__.__name__)
+        
+        self.app_path = self.settings.packages[self.__class__.__name__]["app_path"] + "/" + self.__class__.__name__
+        self.settings.packages[self.__class__.__name__]["app_path"] = self.app_path
+        print self.app_path
 
         # Given the app path, let's check if it is installed or not
         if(os.path.exists(self.app_path)): self.installed = True
@@ -120,11 +122,18 @@ class BaseEngine(object):
         self.fileHelper = FileHelperObject(self.__class__.__name__)
 
     def get_dependencies(self):        
-        if(self.depends == []): return [self.__name__]
+        if(self.depends == []): return [self.__class__.__name__]
         
         new_depends = []
-        for (depend_name, depend_options) in self.depends:
-             new_depends = merge_depends(new_depends, EngineRegistrar.getPackage(depend_name).get_dependencies())
+        for depend_name in self.depends:
+             eng = EngineRegistrar.getPackage(depend_name)
+             if eng is None:
+                eng = generateDynamicClass(depend_name)
+                if eng is None:
+                    print "Could Not Identify Dependency %s as Package or Factory" % basePackage
+                    return
+                    
+             new_depends = merge_depends(new_depends, eng.depends)
         return new_depends
 
     def default_start(self, func_callback):
@@ -139,6 +148,7 @@ class BaseEngine(object):
 
     def resolveDepends(self):
         for pack_name in self.depends:
+            print pack_name
             package = EngineRegistrar.getPackage(pack_name)
             if(package is None):
                 package = generateDynamicClass(pack_name)
@@ -157,9 +167,10 @@ class BaseEngine(object):
         if(force):
             if(not try_delete_path(self.app_path)): raise FilePermissionException
             self.installed = False
-        if not os.path.exists(self.app_path):
-            os.makedirs(self.app_path)
-            self.installed = func_callback()
+        if not (self.app_path is None):
+            if not os.path.exists(self.app_path):
+                os.makedirs(self.app_path)
+        self.installed = func_callback()
         return self.installed
 
 

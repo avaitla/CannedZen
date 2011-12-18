@@ -11,4 +11,5 @@ class VirtualEnv(BaseEngine):
         try: import virtualenv
         except ImportError:
             command('''sudo pip install virtualenv''')
+        print self.app_path
         command("virtualenv --no-site-packages %s" % self.app_path)
