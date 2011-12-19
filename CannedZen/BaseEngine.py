@@ -101,7 +101,8 @@ class BaseEngine(object):
     optionalArgs = {"app_path" : None}
 
     def __init__(self, *args, **kw):
-        if "settings" in kw: self.settings = kw["settings"]
+        if "settings" in kw: 
+            self.settings = kw["settings"]
         else: self.settings = GlobalSettings()
         
         # Resolve the App Path Issue

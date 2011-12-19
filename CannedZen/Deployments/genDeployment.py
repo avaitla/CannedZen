@@ -52,24 +52,23 @@ class InteractionDeployment(object):
         else: self.settings = kwargs["settings"]
     
     def install(self):
-        for engine in self.engines:
-            eng = engine(settings = self.settings)
-            eng.install()
-            self.settings = eng.settings
+        #for engine in self.engines:
+        #    eng = engine(settings = self.settings)
+        #    eng.install()
+        #    self.settings = eng.settings
         
         total_depends = []
         for item in self.engines: total_depends = merge_depends(total_depends, get_dependencies(item))
-        print total_depends
         
-        print(self.settings)
-        input("Try Interacts?")
+        #print(self.settings.packages)
+        self.settings.packages = {'Apache': {'app_path': '/Users/Tigger/Apache/Apache/Apache'}, 'VirtualEnv': {'app_path': '/Users/Tigger/Apache/VirtualEnv'}, 'PyModule(Django)': {'app_path': '/Users/Tigger/Apache/VirtualEnv'}, 'ModWSGI': {'app_path': '/Users/Tigger/Apache/ModWSGI'}, 'Django': {'app_path': '/Users/Tigger/Apache/Django', 'project_name': 'NewProject'}}
         pairs = combinations(total_depends, 2)
         for (pair1, pair2) in pairs:
             print ("Checking: (%s, %s)" % (pair1, pair2))
             interaction = InteractRegistrar.getInteraction(pair1, pair2)
             if(interaction is None): continue
             inst = interaction(self.settings)
-            inst.install()
+            inst.install_interaction()
         
                 
 '''

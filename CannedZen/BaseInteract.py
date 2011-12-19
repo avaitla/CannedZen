@@ -47,8 +47,8 @@ class BaseInteract(object):
     engine2name = ""
 
     def __init__(self, settings):
-        self.engine1settings = settings.packages[engine1name]
-        self.engine2settings = settings.packages[engine2name]
+        self.engine1settings = settings.packages[self.engine1name]
+        self.engine2settings = settings.packages[self.engine2name]
         self.engine1path = self.engine1settings["app_path"]
         self.engine2path = self.engine2settings["app_path"]
         assert(exists(self.engine1path)), "engineone path does not exist"

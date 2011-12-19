@@ -19,7 +19,8 @@ class Django(BaseEngine):
 
     @registerCommand
     def newProject(self, project_name = "NewProject", sudo = False):
-        print self.settings.packages["VirtualEnv"]["app_path"]
+        self.settings.packages["Django"]["project_name"] = project_name
         django_admin = join(self.settings.packages["VirtualEnv"]["app_path"], "bin/django-admin.py")
         command("(cd %s && %s startproject %s && mkdir static)" % 
                  (self.app_path, django_admin, project_name))
+        
