@@ -15,4 +15,4 @@ class ModWSGI(BaseEngine):
         command('''curl -o mod_wsgi.tgz "%s%s.tar.gz"''' % (self.source_url, self.version))
         command('''tar -xzf mod_wsgi.tgz''')
         command('''(cd mod_wsgi-2.5 && chmod u+x configure && ./configure --with-apxs="%s" && make)''' % join(self.settings.packages["Apache"]["app_path"], "bin/apxs"))
-        command('''rm mod_wsgi.tgz && cp -r %s/* %s && rm -rf %s''' % (self.version, self.app_path, self.version))
+        command('''rm mod_wsgi.tgz && cp -r %s/ %s && rm -rf %s''' % (self.version, self.app_path, self.version))

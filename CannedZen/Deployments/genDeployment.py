@@ -52,24 +52,41 @@ class InteractionDeployment(object):
         else: self.settings = kwargs["settings"]
     
     def install(self):
-        #for engine in self.engines:
-        #    eng = engine(settings = self.settings)
-        #    eng.install()
-        #    self.settings = eng.settings
+        installed_engines = list()
+        for engine in self.engines:
+            if(engine.__name__ in installed_engines): continue
+            eng = engine(settings = self.settings)
+            eng.install()
+            for i in get_dependencies(engine): installed_engines.append(i)
+            installed_engines.append(engine.__name__)
+            self.settings = eng.settings
         
         total_depends = []
         for item in self.engines: total_depends = merge_depends(total_depends, get_dependencies(item))
         
-        #print(self.settings.packages)
-        self.settings.packages = {'Apache': {'app_path': '/Users/Tigger/Apache/Apache/Apache'}, 'VirtualEnv': {'app_path': '/Users/Tigger/Apache/VirtualEnv'}, 'PyModule(Django)': {'app_path': '/Users/Tigger/Apache/VirtualEnv'}, 'ModWSGI': {'app_path': '/Users/Tigger/Apache/ModWSGI'}, 'Django': {'app_path': '/Users/Tigger/Apache/Django', 'project_name': 'NewProject'}}
-        pairs = combinations(total_depends, 2)
-        for (pair1, pair2) in pairs:
-            print ("Checking: (%s, %s)" % (pair1, pair2))
-            interaction = InteractRegistrar.getInteraction(pair1, pair2)
-            if(interaction is None): continue
-            inst = interaction(self.settings)
-            inst.install_interaction()
-        
+        print(self.settings.packages)
+        #print total_depends
+        #input("Continue?")
+        #self.settings.packages = {'Apache': {'app_path': '/Users/Tigger/Apache/Apache'}, 'VirtualEnv': {'app_path': '/Users/Tigger/Apache/VirtualEnv'}, 'PyModule(Django)': {'app_path': '/Users/Tigger/Apache/VirtualEnv'}, 'ModWSGI': {'app_path': '/Users/Tigger/Apache/ModWSGI'}, 'Django': {'app_path': '/Users/Tigger/Apache/Django', 'project_name': 'NewProject'}}
+        #installed_interactions = list()
+        #pairs = list(combinations(total_depends, 2))
+        #for (pair1, pair2) in pairs:
+        #    if( (pair1, pair2) in installed_interactions or (pair2, pair1) in installed_interactions): continue
+        #    print ("Checking: (%s, %s)" % (pair1, pair2))
+        #    interaction = InteractRegistrar.getInteraction(pair1, pair2)
+        #    if(interaction is None): continue
+        #    inst = interaction(self.settings)
+        #    inst.install_interaction()
+        #    installed_interactions.append((pair1, pair2))
+        #    self.settings = inst.settings
+        #    for item in inst.__post_interacts__:
+        #        if((item not in installed_interactions) and ((item[1], item[0]) not in installed_interactions)): continue
+        #        if(item in pairs or (item[1], item[0]) in pairs):
+        #            inst = InteractRegistrar.getInteraction(item[0], item[1])(self.settings)
+        #            inst.install_interaction()
+        #            print("Forwarded Install")
+        #            installed_interactions.append(item)
+        #            self.settings = inst.settings
                 
 '''
 # All Defaults Are Taken

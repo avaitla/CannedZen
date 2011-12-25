@@ -1,4 +1,6 @@
 import os, sys
+sys.path.append("/Users/Tigger/Documents/CannedZen")
+
 from CannedZen.BaseEngine import EngineRegistrar
 from CannedZen.Registration import GlobalSettings
 

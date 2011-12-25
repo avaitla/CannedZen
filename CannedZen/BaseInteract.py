@@ -41,14 +41,16 @@ class RegisterInteract(type):
 # I would recommend that we choose engine1 and engine2 alphabetically.
 class BaseInteract(object):
     __metaclass__ = RegisterInteract
+    __post_interacts__ = []
 
     # Authors will Need to Fill in these details
     engine1name = ""
     engine2name = ""
 
     def __init__(self, settings):
-        self.engine1settings = settings.packages[self.engine1name]
-        self.engine2settings = settings.packages[self.engine2name]
+        self.settings = settings
+        self.engine1settings = self.settings.packages[self.engine1name]
+        self.engine2settings = self.settings.packages[self.engine2name]
         self.engine1path = self.engine1settings["app_path"]
         self.engine2path = self.engine2settings["app_path"]
         assert(exists(self.engine1path)), "engineone path does not exist"

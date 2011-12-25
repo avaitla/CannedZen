@@ -171,8 +171,7 @@ class BaseEngine(object):
         if not (self.app_path is None):
             if not os.path.exists(self.app_path):
                 os.makedirs(self.app_path)
-        self.installed = func_callback()
-        return self.installed
+                self.installed = func_callback()
 
 
     def uninstall(self): raise NotImplemented
